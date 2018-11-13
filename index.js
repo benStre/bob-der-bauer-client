@@ -4,28 +4,40 @@ require('./zeug_ansteuern.js'); // zeug ansteuern
 var fs = require('fs'); // dateien lesen
 global.API = new (require('./api.js'))(); // die api 
 
-_s("bob-der-bauer-client v.0.1")
+console.log(`❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤`.red.bold)
+console.log(`\n\n                BOB-DER-BAUER-client v.0.1`.green.bold)
+console.log(`       -> created by Anne, Benedikt, Paul & Finn <- \n\n`.cyan.bold)
+console.log(`❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤\n\n`.red.bold)
+
 global.SOCKET = new (require('./socket_client.js'))(); // für verbindung zum server
 
 
-//setTimeout(()=>pump_on(),2000)
-/*pump_on
- _("text") // normaler weißer text 
- _s("Fertig!") // grüner Text
- _e("Fehler") // roter Text
- _i("Info") // blauer Text
 
-*/
+// pumpe steuern #1
 
 setInterval(async ()=>{
 	let state = await read_moisture_sensor()
 	if(state){
 		pump_on()	
-		setTimeout(()=>pump_off(),1000)
+		setTimeout(()=>pump_off(),4000)
 	} else {
 		pump_off()
 	}	
-},10000)
+},1000)
+
+
+// wasserstand prüfen - rote LED #1
+
+/*
+setInterval(async ()=>{
+	let water = await read_water_level()
+	if(water){
+		indicator_led_on()	
+	} else {
+		indicator_led_off()
+	}	
+},1000)
+*/
 
 
 
