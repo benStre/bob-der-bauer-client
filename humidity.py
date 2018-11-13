@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 import time
 
 #GPIO setup
-channel=21
+channel=26
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(channel, GPIO.IN)
 
@@ -19,4 +19,5 @@ GPIO.add_event_callback(channel, check)
 
 while True:
 	time.sleep(1)
+	check(channel)
 

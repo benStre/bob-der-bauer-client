@@ -37,7 +37,7 @@ class Socket {
                 });
                 res.on('end',  ()=> {
                     _i(this.TAG,  "using server " + data)
-                    resolve(data)
+                    resolve(/*data*/"https://bauerbob.herokuapp.com")
                 });
             });       
             request.on('error', function (e) {

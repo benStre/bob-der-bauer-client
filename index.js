@@ -7,13 +7,26 @@ global.API = new (require('./api.js'))(); // die api
 _s("bob-der-bauer-client v.0.1")
 global.SOCKET = new (require('./socket_client.js'))(); // für verbindung zum server
 
-/*
+
+//setTimeout(()=>pump_on(),2000)
+/*pump_on
  _("text") // normaler weißer text 
  _s("Fertig!") // grüner Text
  _e("Fehler") // roter Text
  _i("Info") // blauer Text
 
 */
+
+setInterval(async ()=>{
+	let state = await read_moisture_sensor()
+	if(state){
+		pump_on()	
+		setTimeout(()=>pump_off(),1000)
+	} else {
+		pump_off()
+	}	
+},500)
+
 
 
 var _data_path = './data/data.json'
