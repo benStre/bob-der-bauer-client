@@ -72,11 +72,9 @@ global.indicator_led_on = async function(){
 	return new Promise(async resolve=>{
 		try {
 			await gpiop.write(INDICATOR_LED_PIN, true)
-			_s("indicator_led", "on")
-			_LED = true
+			//_s("indicator_led", "on")
 		} catch(e){
-			_e("indicator_led", "GPIO DISABLED")
-			_LED = -1
+			//_e("indicator_led", "GPIO DISABLED")
 		}
 	})
 }
@@ -85,11 +83,10 @@ global.indicator_led_off = async function(){
 	return new Promise(async resolve=>{
 		try {
 			await gpiop.write(INDICATOR_LED_PIN, false)
-			_s("indicator_led", "off")
-			_LED = false
+			//_s("indicator_led", "off")
 		} catch(e){
-			_e("indicator_led", "GPIO DISABLED")
-			_LED = -1
+			//_e("indicator_led", "GPIO DISABLED")
+
 		}
 	})
 }
