@@ -53,6 +53,7 @@ class Socket {
         this.server_url = await this.get_use_server()
 
         return new Promise(resolve=>{
+	    console.log("trying to connect")
 
             // Verbindung zum Server
             this.socket = require('socket.io-client')(this.server_url);

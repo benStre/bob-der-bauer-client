@@ -9,6 +9,14 @@ class API {
     annehans(data){
         return {paul:"nerv nich"}
     }
+
+    pump(data){
+    	if(data.state=="on"){
+		pump_on()	
+	} else {
+		pump_off()
+	}
+    }	
 }
 
 

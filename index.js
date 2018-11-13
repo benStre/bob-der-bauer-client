@@ -1,4 +1,6 @@
 require('./echo.js'); // für console-output:
+require('./zeug_ansteuern.js'); // zeug ansteuern
+
 var fs = require('fs'); // dateien lesen
 global.API = new (require('./api.js'))(); // die api 
 
@@ -23,6 +25,8 @@ global.update_DATA = function(){
 
 var SERIAL_NUMBER
 
+
+
 init()
 
 async function init(){
@@ -33,8 +37,10 @@ async function init(){
     await SOCKET.init()
 
     if(!_DATA.verification){ // neue registrierung
+	_i("new registration")
         let result = await SOCKET.raspi_verify({serial_number:SERIAL_NUMBER})
-        if(result.valid){
+	console.log("result", result)        
+	if(result.valid){
             _s("SOCKET", "verified")
             _i("SOCKET", "code: "  + result.code)
             _i("SOCKET", "verification: "  + result.verification)
