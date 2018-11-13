@@ -2,10 +2,13 @@
 
 class API {
 
-    async echo(data){
+    echo(data){
         return {you_said: data.message}
     }
 
+    annehans(data){
+        return {paul:"nerv nich"}
+    }
 }
 
 
