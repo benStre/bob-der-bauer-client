@@ -57,7 +57,8 @@ setInterval(async ()=>{
 	}	
 },5000)
 
-function startBlink(){
+
+global.startBlink = function(){
 	_i("LED BLINK", "start")
 	_LED = true
 	clearInterval(led_blink)
@@ -66,7 +67,8 @@ function startBlink(){
 		setTimeout(indicator_led_off, 200)
 	}, 400)	
 }
-function stopBlink(){
+
+global.stopBlink = function(){
 	_i("LED BLINK", "stop")
 	_LED = false
 	clearInterval(led_blink)
