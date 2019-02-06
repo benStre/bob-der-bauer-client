@@ -1,5 +1,6 @@
 require('./echo.js'); // für console-output:
 var fs = require('fs'); // dateien lesen
+global.API = new (require('./api.js'))(); // die api 
 
 _s("bob-der-bauer-client v.0.1")
 global.SOCKET = new (require('./socket_client.js'))(); // für verbindung zum server

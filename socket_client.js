@@ -5,7 +5,21 @@ class Socket {
         this.server_url = 'https://bauerbob.herokuapp.com/'
        
         //this.init()
-
+        this.on_api = (func, data)=>{ // wenn eine api function aufgerufen wird
+            return new Promise(async resolve=>{
+                if(typeof API[func] === 'function'){
+                    let result = await API[func](data)
+                    if(typeof result!=="object"){
+                        resolve({valid:false, reason:`the function '${func}' did not return a proper object`})  
+                    } else {
+                        resolve({valid:true, ...result})                
+                    }
+                } else {
+                  resolve({valid:false, reason:`the function '${func}' does not exist`})
+                }            
+            })
+        }
+        
         _s(this.TAG, "initialized")
     }
 
@@ -39,12 +53,18 @@ class Socket {
         this.server_url = await this.get_use_server()
 
         return new Promise(resolve=>{
+
             // Verbindung zum Server
             this.socket = require('socket.io-client')(this.server_url);
 
             this.socket.on('connect', ()=>{
                 _i(this.TAG, "Connected to "+ this.server_url)
                 resolve()
+            });
+
+            this.socket.on('api', async (data, c)=>{
+                let result = await this.on_api(data.func, data.data)
+                c(result)
             });
 
             this.socket.on('disconnect', ()=>{
