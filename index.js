@@ -1,4 +1,9 @@
 require('./echo.js'); // für console-output:
+var fs = require('fs'); // dateien lesen
+
+_s("bob-der-bauer-client v.0.1")
+global.SOCKET = new (require('./socket_client.js'))(); // für verbindung zum server
+
 /*
  _("text") // normaler weißer text 
  _s("Fertig!") // grüner Text
@@ -7,33 +12,53 @@ require('./echo.js'); // für console-output:
 
 */
 
-var SERIAL_NUMBER = false
+
+var _data_path = './data/data.json'
+global._DATA = JSON.parse(fs.readFileSync(_data_path, 'utf8'));
+global.update_DATA = function(){
+  fs.writeFileSync(_data_path, JSON.stringify(_DATA));
+}
+
+
+var SERIAL_NUMBER
 
 init()
 
-
 async function init(){
-    _s("bob-der-bauer-client v.0.1")
+
     SERIAL_NUMBER = await getSerialNumber()
     _i("raspi serial number", SERIAL_NUMBER)
 
-    // Verbindung zum Server
-    let server_url = 'http://192.168.0.25' // 'https://bauerbob.herokuapp.com/'
-    var socket = require('socket.io-client')(server_url);
+    await SOCKET.init()
+
+    if(!_DATA.verification){ // neue registrierung
+        let result = await SOCKET.raspi_verify({serial_number:SERIAL_NUMBER})
+        if(result.valid){
+            _s("SOCKET", "verified")
+            _i("SOCKET", "code: "  + result.code)
+            _i("SOCKET", "verification: "  + result.verification)
+            _DATA.code = result.code
+            _DATA.verification = result.verification
+            update_DATA() 
+        } else {
+            _e("SOCKET", "could not verify because: " + result.reason)
+        }         
+    } else {
+        let result = await SOCKET.raspi_connect({serial_number:SERIAL_NUMBER, verification:_DATA.verification})
+        if(result.valid){
+            _s("SOCKET", "connected")
+        } else {
+            _e("SOCKET", "could not connect because: " + result.reason)
+        }         
+    }
 
 
-    socket.on('connect', function(){
-        _i("Connected to "+ server_url)
-        socket.emit("raspi_verify", {serial_number:SERIAL_NUMBER})
-    });
-    socket.on('news', function(data){
-        _(data)
-    });
-    socket.on('disconnect', function(){
-        _e("disconnected")
-    });
-
+    
+    
+    
 }
+
+
 
 
 
