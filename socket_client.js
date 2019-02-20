@@ -29,7 +29,7 @@ class Socket {
 
             var request = https.request({
                 host: 'bauerbob.herokuapp.com',
-                path: '/use_server'
+                path: '/use_server_raw'
             }, (res)=> {
                 var data = '';
                 res.on('data', function (chunk) {
