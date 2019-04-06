@@ -25,7 +25,7 @@ setInterval(async ()=>{
 	} else {
 		pump_off()
 	}	
-},500)
+},10000)
 
 
 
@@ -93,7 +93,11 @@ function getSerialNumber(){
                     resolve(stdout.replace("\n", ""))
                 } 
                 else { 
-                    resolve(false)
+                	_i("using backup serial_number method (for windows)")
+                	var serialNumber = require('serial-number');
+					serialNumber(function (err, value) {
+						resolve(value)
+					});                  
                 }
         });        
     })
