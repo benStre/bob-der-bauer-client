@@ -37,7 +37,7 @@ class Socket {
                 });
                 res.on('end',  ()=> {
                     _i(this.TAG,  "using server " + data)
-                    resolve(data)
+                    resolve(/*data*/"https://bauerbob.herokuapp.com")
                 });
             });       
             request.on('error', function (e) {
@@ -53,6 +53,7 @@ class Socket {
         this.server_url = await this.get_use_server()
 
         return new Promise(resolve=>{
+	    console.log("trying to connect")
 
             // Verbindung zum Server
             this.socket = require('socket.io-client')(this.server_url);
