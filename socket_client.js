@@ -58,8 +58,9 @@ class Socket {
             // Verbindung zum Server
             this.socket = require('socket.io-client')(this.server_url);
 
-            this.socket.on('connect', ()=>{
+            this.socket.on('connect', async ()=>{
                 _i(this.TAG, "Connected to "+ this.server_url)
+                _
                 resolve()
             });
 
@@ -100,6 +101,16 @@ class Socket {
     async raspi_connect(data) { // {session_id: "asd8ui32jekwla"}
         return await this.socket_emit("raspi_connect", data)
     }
+
+    async raspi_no_water(data) { // {session_id: "asd8ui32jekwla"}
+        return await this.socket_emit("raspi_no_water", data)
+    }
+
+    async raspi_online(data) { // {session_id: "asd8ui32jekwla"}
+        return await this.socket_emit("raspi_online", data)
+    }
+
+    
 
 }
 

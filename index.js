@@ -13,31 +13,40 @@ global.SOCKET = new (require('./socket_client.js'))(); // für verbindung zum se
 
 
 
+
 // pumpe steuern #1
 
 setInterval(async ()=>{
 	let state = await read_moisture_sensor()
-	if(state){
+	if(state===-1){ //error
+		
+	}
+	else if(state){
 		pump_on()	
 		setTimeout(()=>pump_off(),4000)
 	} else {
 		pump_off()
 	}	
-},1000)
+},10000)
 
 
 // wasserstand prüfen - rote LED #1
 
-/*
 setInterval(async ()=>{
 	let water = await read_water_level()
-	if(water){
+	if(water===-1){ //error
+
+	}
+	else if(water){
 		indicator_led_on()	
 	} else {
 		indicator_led_off()
+		let res = await SOCKET.raspi_no_water()
+		_i("sending notification", res)
+
 	}	
-},1000)
-*/
+},20000)
+
 
 
 
@@ -69,6 +78,9 @@ async function init(){
             _s("SOCKET", "verified")
             _i("SOCKET", "code: "  + result.code)
             _i("SOCKET", "verification: "  + result.verification)
+            _i("Sending notification", "raspi online")
+			let res = await SOCKET.raspi_online()
+			console.log(res)
             _DATA.code = result.code
             _DATA.verification = result.verification
             update_DATA() 
@@ -79,6 +91,9 @@ async function init(){
         let result = await SOCKET.raspi_connect({serial_number:SERIAL_NUMBER, verification:_DATA.verification})
         if(result.valid){
             _s("SOCKET", "connected")
+            _i("Sending notification", "raspi online")
+			let res = await SOCKET.raspi_online()
+			console.log(res)
         } else {
             _e("SOCKET", "could not connect because: " + result.reason)
         }         

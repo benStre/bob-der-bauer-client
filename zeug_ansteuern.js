@@ -46,7 +46,7 @@ global.read_moisture_sensor = async function(){
 			_s("moisture_sensor", "value: " + res)
 		} catch(e){
 			_e("moisture_sensor", "GPIO DISABLED")
-			resolve(false)
+			resolve(-1)
 		}
 	})
 }
@@ -59,7 +59,7 @@ global.read_water_level = async function(){
 			_s("water_level", "value: " + res)
 		} catch(e){
 			_e("water_level", "GPIO DISABLED")
-			resolve(false)
+			resolve(-1)
 		}
 	})
 }
