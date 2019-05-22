@@ -24,8 +24,10 @@ global.pump_on = async function(){
 	try {
 		await gpiop.write(PUMP_PIN, true)
 		_s("pump", "on")
+		_PUMP = true
 	} catch(e){
 		_e("pump", "GPIO DISABLED")
+		_PUMP = -1
 	}
 }
 
@@ -33,8 +35,10 @@ global.pump_off = async function(){
 	try {
 		await gpiop.write(PUMP_PIN, false)
 		_s("pump", "off")
+		_PUMP = false
 	} catch(e){
 		_e("pump", "GPIO DISABLED")
+		_PUMP = -1
 	}	
 }
 
@@ -69,8 +73,10 @@ global.indicator_led_on = async function(){
 		try {
 			await gpiop.write(INDICATOR_LED_PIN, true)
 			_s("indicator_led", "on")
+			_LED = true
 		} catch(e){
 			_e("indicator_led", "GPIO DISABLED")
+			_LED = -1
 		}
 	})
 }
@@ -80,8 +86,10 @@ global.indicator_led_off = async function(){
 		try {
 			await gpiop.write(INDICATOR_LED_PIN, false)
 			_s("indicator_led", "off")
+			_LED = false
 		} catch(e){
 			_e("indicator_led", "GPIO DISABLED")
+			_LED = -1
 		}
 	})
 }

@@ -11,12 +11,17 @@ console.log(`❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤�
 
 global.SOCKET = new (require('./socket_client.js'))(); // für verbindung zum server
 
-
-
+global._AUTO_WATER = true
+global._PUMP = -1
+global._LED = -1
 
 // pumpe steuern #1
 
 setInterval(async ()=>{
+	if(!_AUTO_WATER){return}
+
+	console.log("\n")
+	_s("AUTO_WATER", "running")
 	let state = await read_moisture_sensor()
 	if(state===-1){ //error
 		
@@ -61,14 +66,20 @@ var SERIAL_NUMBER
 
 
 
-init()
 
-async function init(){
+global.init = async function(new_session=true){
 
+	console.log("new_session", new_session)
+	
     SERIAL_NUMBER = await getSerialNumber()
     _i("raspi serial number", SERIAL_NUMBER)
+    if(_DATA.code){
+    	console.log("\n")
+    	_s("BOB CODE", _DATA.code)
+    	console.log("\n")
+    }
 
-    await SOCKET.init()
+    if(new_session) await SOCKET.init()
 
     if(!_DATA.verification){ // neue registrierung
 	_i("new registration")
@@ -76,7 +87,9 @@ async function init(){
 	console.log("result", result)        
 	if(result.valid){
             _s("SOCKET", "verified")
-            _i("SOCKET", "code: "  + result.code)
+            console.log("\n")
+			_s("BOB CODE", result.code)
+			console.log("\n")
             _i("SOCKET", "verification: "  + result.verification)
             _i("Sending notification", "raspi online")
 			let res = await SOCKET.raspi_online()
@@ -106,6 +119,7 @@ async function init(){
 }
 
 
+init()
 
 
 

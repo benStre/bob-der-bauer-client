@@ -8,6 +8,8 @@ class Socket {
         this.on_api = (func, data)=>{ // wenn eine api function aufgerufen wird
             return new Promise(async resolve=>{
                 if(typeof API[func] === 'function'){
+                    console.log("\n")
+                    _i("API function called", func)
                     let result = await API[func](data)
                     if(typeof result!=="object"){
                         resolve({valid:false, reason:`the function '${func}' did not return a proper object`})  
@@ -52,6 +54,8 @@ class Socket {
 
         this.server_url = await this.get_use_server()
 
+        let no_callback = true
+
         return new Promise(resolve=>{
 	    console.log("trying to connect with " + this.server_url)
 
@@ -60,7 +64,11 @@ class Socket {
 
             this.socket.on('connect', async ()=>{
                 _i(this.TAG, "Connected to "+ this.server_url)
-                _
+                if(no_callback){
+                    no_callback = false
+                } else {
+                    init()
+                }
                 resolve()
             });
 
