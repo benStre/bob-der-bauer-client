@@ -1,55 +1,57 @@
-require('./echo.js'); // für console-output:
+// bob.js
+require('./echo.js'); // für console-output
+var fs = require('fs'); // dateien lesen
 require('./zeug_ansteuern.js'); // zeug ansteuern
 
-var fs = require('fs'); // dateien lesen
-global.API = new (require('./api.js'))(); // die api 
+global.API = new (require('./api.js'))(); // die web API 
+global.SOCKET = new (require('./socket_client.js'))(); // für Verbindung zum server
+
 
 console.log(`❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤`.red.bold)
 console.log(`\n\n                BOB-DER-BAUER-client v.0.1`.green.bold)
 console.log(`       -> created by Anne, Benedikt, Paul & Finn <- \n\n`.cyan.bold)
 console.log(`❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤\n\n`.red.bold)
 
-global.SOCKET = new (require('./socket_client.js'))(); // für verbindung zum server
 
+// Parameter für die Bewässerung 
 global._AUTO_WATER = true
 global._PUMP = -1
 global._LED = -1
 
-// pumpe steuern #1
+global.SERIAL_NUMBER
 
+// pumpe an- /ausschalten, wenn boden zu trocken ist: 
 setInterval(async ()=>{
-	if(!_AUTO_WATER){return}
+	if(!_AUTO_WATER){return} // automatische Bewässerung ausgeschaltet?
 
 	console.log("\n")
 	_s("AUTO_WATER", "running")
-	let state = await read_moisture_sensor()
-	if(state===-1){ //error
-		
-	}
-	else if(state){
+	let state = await read_moisture_sensor() // Bodenfeuchtigkeit überprüfen
+
+	if(state){ // zu trocken: Pumpe 4s lang anschalten
 		pump_on()	
 		setTimeout(()=>pump_off(),4000)
-	} else {
+	} else { // Pumpe ausschalten
 		pump_off()
 	}	
-},10000)
+},20000) // alle 20s wiederholen
 
 
-// wasserstand prüfen - rote LED #1
-var led_blink
+// Wasserstand im Wassertank prüfen
+var led_blink = false // LED-Status: blinkt/aus
 var water_notification_sent = false
 
 setInterval(async ()=>{
-	let water = await read_water_level()
-	if(water===-1){ //error
+	let water = await read_water_level() // Wasserstand überprüfen
+	if(water===-1){ // Fehler
 		stopBlink()
 	}
-	else if(!water){
+	else if(!water){ // Wassertank voll
 		water_notification_sent = false
-		stopBlink()		
-	} else {
-		startBlink()
-		if(!water_notification_sent){
+		stopBlink() // rote LED ausschalten
+	} else { // Wassertank leer!
+		startBlink() // rote LED blinken lassen
+		if(!water_notification_sent){ // falls noch nicht gesendet, Benachrichtigung an User senden
 			let res = await SOCKET.raspi_no_water()
 			_i("sending notification", res)
 			water_notification_sent = true
@@ -57,7 +59,7 @@ setInterval(async ()=>{
 	}	
 },5000)
 
-
+// LED-Blink-Funktionen
 global.startBlink = function(){
 	_i("LED BLINK", "start")
 	_LED = true
@@ -77,67 +79,71 @@ global.stopBlink = function(){
 
 
 
-
+// Daten aus der data.json Datei auslesen (keys...)
 var _data_path = './data/data.json'
 global._DATA = JSON.parse(fs.readFileSync(_data_path, 'utf8'));
+
+// Funktion zum Schreiben neuer Daten in die data.json-Datei
 global.update_DATA = function(){
   fs.writeFileSync(_data_path, JSON.stringify(_DATA));
 }
 
 
-var SERIAL_NUMBER
 
-
-
-
+// Verbindung mit dem Server:
 global.init = async function(new_session=true){
 
 	console.log("new_session", new_session)
 	
-    SERIAL_NUMBER = await getSerialNumber()
+    SERIAL_NUMBER = await getSerialNumber() // Serial Number des Raspi auslesen
     _i("raspi serial number", SERIAL_NUMBER)
+
+    // Den Verbindungs-Code für diesen Raspberry Pi zum Eingeben auf der Website anzeigen:
     if(_DATA.code){
     	console.log("\n")
     	_s("BOB CODE", _DATA.code)
     	console.log("\n")
     }
 
-    if(new_session) await SOCKET.init()
+    if(new_session) await SOCKET.init() // neuen Socket zur Kommunikation mit dem Server erstellen (->socket_client.js)
 
-    if(!_DATA.verification){ // neue registrierung
-	_i("new registration")
-        let result = await SOCKET.raspi_verify({serial_number:SERIAL_NUMBER})
-	console.log("result", result)        
-	if(result.valid){
-            _s("SOCKET", "verified")
-            console.log("\n")
-			_s("BOB CODE", result.code)
-			console.log("\n")
-            _i("SOCKET", "verification: "  + result.verification)
-            _i("Sending notification", "raspi online")
+    if(!_DATA.verification){ // neue Registrierung für den Raspi
+		_i("new registration")
+        let result = await SOCKET.raspi_verify({serial_number:SERIAL_NUMBER}) // Registrierung mit Serial Number anfordern
+		console.log("result", result)        
+		if(result.valid){ // Erfolgreich
+				_s("SOCKET", "verified")
+				console.log("\n")
+				_s("BOB CODE", result.code) // Verbindung-Code anzeigen (zum Eingeben auf der Website)
+				console.log("\n")
+				_i("SOCKET", "verification: "  + result.verification)
+				
+				// Falls bereits ein Benutzer existiert, diesen informieren (Benachrichtigung), dass der Raspi wieder online ist
+				_i("Sending notification", "raspi online")
+				let res = await SOCKET.raspi_online()
+
+				// neue Login-Daten speichern:
+				_DATA.code = result.code
+				_DATA.verification = result.verification
+				update_DATA() 
+			} else {
+				_e("SOCKET", "could not verify because: " + result.reason)
+			}         
+	} else { // bereits registriert	
+		// Verbindungsanfrage an den Server
+		let result = await SOCKET.raspi_connect({serial_number:SERIAL_NUMBER, verification:_DATA.verification})
+		if(result.valid){
+			// Erfolgreich verbunden
+			_s("SOCKET", "connected")
+
+			// Benutzer informieren, dass der Raspi wieder online ist (Benachrichtigung)
+			_i("Sending notification", "raspi online")
 			let res = await SOCKET.raspi_online()
 			console.log(res)
-            _DATA.code = result.code
-            _DATA.verification = result.verification
-            update_DATA() 
-        } else {
-            _e("SOCKET", "could not verify because: " + result.reason)
-        }         
-    } else {
-        let result = await SOCKET.raspi_connect({serial_number:SERIAL_NUMBER, verification:_DATA.verification})
-        if(result.valid){
-            _s("SOCKET", "connected")
-            _i("Sending notification", "raspi online")
-			let res = await SOCKET.raspi_online()
-			console.log(res)
-        } else {
-            _e("SOCKET", "could not connect because: " + result.reason)
-        }         
-    }
-
-
-    
-    
+		} else {
+			_e("SOCKET", "could not connect because: " + result.reason)
+		}         
+	}
     
 }
 
@@ -145,9 +151,7 @@ global.init = async function(new_session=true){
 init()
 
 
-
-
-
+// Funktion zum Erhalten der Seriennummer als eindeutige Identifikation für den Raspberry Pi:
 function getSerialNumber(){
     return new Promise(resolve=>{
         var exec = require('child_process').exec;

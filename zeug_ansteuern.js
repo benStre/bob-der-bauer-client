@@ -2,6 +2,7 @@
 global.gpio = require('rpi-gpio')
 global.gpiop = gpio.promise;
 
+// PIN Belegung (GPIO)
 var PUMP_PIN = 35
 var MSENSOR_PIN = 37
 var INDICATOR_LED_PIN = 31
@@ -18,7 +19,7 @@ try {
 }
 
 
-///////////////////////// ANSTEUERUNGS-FUNKTIONEN
+///////////////////////// ANSTEUERUNGS-FUNKTIONEN /////////////////////////
 
 global.pump_on = async function(){
 	try {
@@ -72,7 +73,6 @@ global.indicator_led_on = async function(){
 	return new Promise(async resolve=>{
 		try {
 			await gpiop.write(INDICATOR_LED_PIN, true)
-			//_s("indicator_led", "on")
 		} catch(e){
 			//_e("indicator_led", "GPIO DISABLED")
 		}
@@ -83,7 +83,6 @@ global.indicator_led_off = async function(){
 	return new Promise(async resolve=>{
 		try {
 			await gpiop.write(INDICATOR_LED_PIN, false)
-			//_s("indicator_led", "off")
 		} catch(e){
 			//_e("indicator_led", "GPIO DISABLED")
 
