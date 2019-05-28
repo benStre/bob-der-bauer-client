@@ -23,10 +23,10 @@ class API {
 
     led(data){
     	if(data.state=="on"){
-			pump_on()	
+			startBlink()	
 			return {status:"the led is on"}
 		} else {
-			pump_off()
+			stopBlink()
 			return {status:"the led is off"}
 		}
     }

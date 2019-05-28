@@ -36,21 +36,44 @@ setInterval(async ()=>{
 
 
 // wasserstand prüfen - rote LED #1
+var led_blink
+var water_notification_sent = false
 
 setInterval(async ()=>{
 	let water = await read_water_level()
 	if(water===-1){ //error
-
+		stopBlink()
 	}
-	else if(water){
-		indicator_led_on()	
+	else if(!water){
+		water_notification_sent = false
+		stopBlink()		
 	} else {
-		indicator_led_off()
-		let res = await SOCKET.raspi_no_water()
-		_i("sending notification", res)
-
+		startBlink()
+		if(!water_notification_sent){
+			let res = await SOCKET.raspi_no_water()
+			_i("sending notification", res)
+			water_notification_sent = true
+		}
 	}	
-},20000)
+},5000)
+
+
+global.startBlink = function(){
+	_i("LED BLINK", "start")
+	_LED = true
+	clearInterval(led_blink)
+	led_blink = setInterval(()=>{
+		indicator_led_on()
+		setTimeout(indicator_led_off, 200)
+	}, 400)	
+}
+
+global.stopBlink = function(){
+	_i("LED BLINK", "stop")
+	_LED = false
+	clearInterval(led_blink)
+	indicator_led_off()
+}
 
 
 
