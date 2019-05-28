@@ -1,10 +1,10 @@
 // bob.js
-require('./echo.js'); // für console-output
-var fs = require('fs'); // dateien lesen
-require('./zeug_ansteuern.js'); // zeug ansteuern
+require('./echo.js'); // für Console-Output
+var fs = require('fs'); // Dateien lesen
+require('./zeug_ansteuern.js'); // GPIOs ansteuern
 
-global.API = new (require('./api.js'))(); // die web API 
-global.SOCKET = new (require('./socket_client.js'))(); // für Verbindung zum server
+global.API = new (require('./api.js'))(); // die Web API 
+global.SOCKET = new (require('./socket_client.js'))(); // für Verbindung zum Server
 
 
 console.log(`❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤❤`.red.bold)
@@ -20,25 +20,24 @@ global._LED = -1
 
 global.SERIAL_NUMBER
 
-// pumpe an- /ausschalten, wenn boden zu trocken ist: 
+// Pumpe an- /ausschalten, wenn Boden zu trocken ist: 
 setInterval(async ()=>{
 	if(!_AUTO_WATER){return} // automatische Bewässerung ausgeschaltet?
 
 	console.log("\n")
 	_s("AUTO_WATER", "running")
 	let state = await read_moisture_sensor() // Bodenfeuchtigkeit überprüfen
-
-	if(state){ // zu trocken: Pumpe 4s lang anschalten
+	if(state){ // zu trocken: Pumpe 4s lang einschalten
 		pump_on()	
 		setTimeout(()=>pump_off(),4000)
 	} else { // Pumpe ausschalten
 		pump_off()
 	}	
-},20000) // alle 20s wiederholen
+},1000*60*2) // alle 2 min wiederholen
 
 
 // Wasserstand im Wassertank prüfen
-var led_blink = false // LED-Status: blinkt/aus
+var led_blink = false // LED-Status: blinkt / ist aus
 var water_notification_sent = false
 
 setInterval(async ()=>{
@@ -46,10 +45,10 @@ setInterval(async ()=>{
 	if(water===-1){ // Fehler
 		stopBlink()
 	}
-	else if(!water){ // Wassertank voll
+	else if(!water){  // Wassertank voll
 		water_notification_sent = false
 		stopBlink() // rote LED ausschalten
-	} else { // Wassertank leer!
+	} else {          // Wassertank leer!
 		startBlink() // rote LED blinken lassen
 		if(!water_notification_sent){ // falls noch nicht gesendet, Benachrichtigung an User senden
 			let res = await SOCKET.raspi_no_water()
@@ -57,7 +56,8 @@ setInterval(async ()=>{
 			water_notification_sent = true
 		}
 	}	
-},5000)
+},1000*60*10) // alle 10 min wiederholen
+
 
 // LED-Blink-Funktionen
 global.startBlink = function(){
